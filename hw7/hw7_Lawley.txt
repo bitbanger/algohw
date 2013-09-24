@@ -1,0 +1,38 @@
+Analysis of Algorithms Homework 7
+Lane Lawley
+
+Problem 1
+	Why It Works:
+		My solution implements the Floyd-Warshall algorithm, which finds the shortest path for each pair of vertices. The portion of the problem that calculates the number of paths works on the following principle: if we've discovered a new shortest path from i to j going through k, then the total number of shortest paths is now equal to the number of shortest paths from i to k times the number of shortest paths from k to j. If the path length from i to j going through k is equal to the shortest path discovered so far, we simply add in the same quantity instead of setting it.
+	Why It's Fast:
+		The Floyd-Warshall algorithm runs in O(n^3) time, where n is the number of vertices; this is because the matrix is n by n by n, and it takes constant time to generate each one. My solution implements this algorithm and adds two constant time statements to the inner loop, preserving the O(n^3) running time.
+	Pseudocode:
+		S[i][j][k] = 0, or positive infinity if i == j
+		paths[i][j] = 1 if i == j an edge exists from i to j
+		for k from 1 to n-1:
+			for i from 0 to n:
+				for j from 0 to n:
+					last = S[i][j][k - 1]
+					next = S[i][k][k - 1] + S[k][j][k - 1]
+					if last == next, last != positive infinity, k != i, and k != j:
+						paths[i][j] += paths[i][k] * paths[k][j]
+					else if next < last:
+						paths[i][j] = paths[i][k] * paths[k][j]
+					else if next > last:
+						disregard next and last with extreme prejudice
+					S[i][j][k] = min(last, next)
+
+Problem 2
+	Why It Works:
+		My solution implements the Bellman-Ford algorithm, which finds the shortest paths from a single vertex to all other vertices, and also detects negative-weight cycles. I run Bellman-Ford twice: the first time is a normal invocation of the algorithm. The second time takes any vertex whose distance is updated - an indication that it is reachable from the negative weight cycle - and sets its distance to negative infinity. Running this n - 1 times, we achieve a guarantee that the distance of negative infinity propagates to all nodes reachable from the negative weight cycle. All vertices reachable from the source vertex without touching the negative weight cycle now have a weight that is neither positive infinity (indicating that the vertex is simply unreachable from the source) nor negative infinity.
+	Why It's Fast:
+		The Bellman-Ford algorithm runs in O(mn) time, where n is the number of vertices and m is the number of edges; I run Bellman-Ford two times.
+	Pseudocode:
+		do n-1 times:
+			for every edge (u, v, w):
+				if dist[v] > dist[u] + w:
+					dist[v] = dist[u] + w
+		do n-1 times:
+			for every edge (u, v, w):
+				if dist[v] > dist[u] + w:
+					dist[v] = negative infinity
